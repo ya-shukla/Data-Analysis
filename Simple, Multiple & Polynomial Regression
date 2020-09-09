@@ -1,0 +1,202 @@
+
+#Import Libraries
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn import linear_model
+from sklearn import metrics
+
+
+#Importing CSV file
+df = pd.read_csv("C:/Users/satbi/Desktop/Database.csv")
+pd.set_option('display.max_columns',None)
+pd.set_option('display.max_rows',None)
+print(df.head(108))
+
+#Data Preprocessing
+p = df.drop(["Sr. No","Month/Year"], axis=1)
+print(p)
+
+#Summarizing main data characteristics    
+print(p.describe())
+f = plt.scatter(x="Population",y="Power Demand (kW)",data=df)
+plt.xlabel("Population")
+plt.ylabel("Power Demand (kW)")
+plt.show()
+g = plt.scatter(x="Weather",y="Power Demand (kW)",data=df)
+plt.xlabel("Weather")
+plt.ylabel("Power Demand (kW)")
+plt.show()
+
+
+
+#Data Visualization
+
+#Histogram
+count,bin_edges = np.histogram(df["Power Demand (kW)"])
+df["Power Demand (kW)"].plot(kind="hist",xticks=bin_edges,figsize=(10,10))
+plt.title("Histogram of Power Demand (kW)")
+plt.ylabel("Frequency")
+plt.xlabel("Power Demand (kW)")
+plt.show()
+
+#Bar Graph
+ax=sns.barplot(x=df["Population"],y=df["Power Demand (kW)"],data=df)
+ax=sns.barplot(x=df["Weather"],y=df["Power Demand (kW)"],data=df)
+
+#Pie Charts
+df["Power Demand (kW)"].plot(kind="pie",figsize=(10,10))
+plt.title("Power Demand (kW)")
+plt.show()
+
+#Box Plot
+df_box = df["Power Demand (kW)"].transpose()
+df_box.plot(kind="Box",figsize=(10,10))
+plt.title("Box Plot")
+plt.ylabel("Power Demand (kW)")
+plt.show()
+
+#Area Plot
+df_a = df["Power Demand (kW)"].transpose()
+df_a.plot(kind="Area",figsize=(12,12))
+plt.title("Area Plot")
+plt.xlabel("Months from 2010-2018")
+plt.ylabel("Power Demand (kW)")
+plt.show()
+
+
+
+
+#Model Development
+
+
+#Simple Linear Regression with respect to Population
+X = df["Population"].values.reshape(-1,1)
+Y = df["Power Demand (kW)"].values.reshape(-1,1)
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
+lm = LinearRegression()
+lm.fit(X_train,Y_train)
+print(lm.intercept_)
+print(lm.coef_)
+Y_pred = lm.predict(X_test)
+pdv = pd.DataFrame({"Actual":Y_test.flatten(),"Predicted":Y_pred.flatten()})
+print(pdv)
+df1 = pdv.head(100)
+df1.plot(kind='bar',figsize=(16,10))
+plt.grid(which='major',linestyle='-',linewidth='0.5',color='green')
+plt.grid(which='minor',linestyle=':',linewidth='0.5',color='black')
+plt.show()
+plt.scatter(X_test,Y_test,color='gray')
+plt.plot(X_test,Y_pred,color='red',linewidth=2)
+plt.show()
+print('Mean Absolute Error :',metrics.mean_absolute_error(Y_test,Y_pred))
+print('Mean Squared Error :',metrics.mean_squared_error(Y_test,Y_pred))
+print('Root Mean Squared Error :',np.sqrt(metrics.mean_squared_error(Y_test,Y_pred)))
+#Percentage Error = RMS/mean value = 856800/11623390 = 7.3%
+
+
+
+
+#Simple Linear Regression with respect to Population
+X1 = df["Weather"].values.reshape(-1,1)
+Y1 = df["Power Demand (kW)"].values.reshape(-1,1)
+X1_train,X1_test,Y1_train,Y1_test = train_test_split(X1,Y1,test_size=0.2,random_state=0)
+lm1 = LinearRegression()
+lm1.fit(X1_train,Y1_train)
+print(lm1.intercept_)
+print(lm1.coef_)
+Y1_pred = lm1.predict(X1_test)
+pdv1 = pd.DataFrame({"Actual":Y1_test.flatten(),"Predicted":Y1_pred.flatten()})
+print(pdv1)
+df2 = pdv1.head(100)
+df2.plot(kind='bar',figsize=(16,10))
+plt.grid(which='major',linestyle='-',linewidth='0.5',color='green')
+plt.grid(which='minor',linestyle=':',linewidth='0.5',color='black')
+plt.show()
+plt.scatter(X1_test,Y1_test,color='gray')
+plt.plot(X1_test,Y1_pred,color='red',linewidth=2)
+plt.show()
+print('Mean Absolute Error :',metrics.mean_absolute_error(Y1_test,Y1_pred))
+print('Mean Squared Error :',metrics.mean_squared_error(Y1_test,Y1_pred))
+print('Root Mean Squared Error :',np.sqrt(metrics.mean_squared_error(Y1_test,Y1_pred)))
+#Percentage Error = RMS/mean value = 807720/11623390 = 6.94%
+
+
+
+#Multiple Linear Regression with respect to Population and Weather
+X_mlr = df.iloc[:,2:4]
+Y_mlr = df.iloc[:,4:5]
+X_mlr_train,X_mlr_test,Y_mlr_train,Y_mlr_test = train_test_split(X_mlr,Y_mlr,test_size=0.2,random_state=0)
+lm.fit(X_mlr_train,Y_mlr_train)
+Y_pred_mlr = lm.predict(X_mlr_test)
+pdv_mlr = pd.DataFrame({"Actual":Y_test.flatten(),"Predicted":Y_pred.flatten()})
+print(pdv_mlr)
+df3 = pdv1.head(100)
+df3.plot(kind='bar',figsize=(16,10))
+plt.grid(which='major',linestyle='-',linewidth='0.5',color='green')
+plt.grid(which='minor',linestyle=':',linewidth='0.5',color='black')
+plt.show()
+plt.scatter(X_test,Y_test,color='gray')
+plt.plot(X_test,Y_pred,color='red',linewidth=2)
+plt.show()
+print('Mean Absolute Error :',metrics.mean_absolute_error(Y_mlr_test,Y_pred_mlr))
+print('Mean Squared Error :',metrics.mean_squared_error(Y_mlr_test,Y_pred_mlr))
+print('Root Mean Squared Error :',np.sqrt(metrics.mean_squared_error(Y_mlr_test,Y_pred_mlr)))
+#Percentage Error = RMS/mean value = 842097.72/11623390 = 7.24%
+
+
+
+
+#Polynomial Regression with respect to Population
+X_pr = df[["Population",]].values
+Y_pr = df["Power Demand (kW)"].values
+pr = PolynomialFeatures(degree=30)   #since this degree gives the best fit and hence the least error
+X_poly = pr.fit_transform(X_pr)
+pr_reg = LinearRegression()
+pr_reg.fit(X_poly,Y_pr)
+Y_poly = pr_reg.predict(pr.fit_transform(X_pr))
+pdv_pr = pd.DataFrame({"Actual":Y_pr.flatten(),"Predicted":Y_poly.flatten()})
+df_pr = pdv_pr.head(108)
+df_pr.plot(kind='bar',figsize=(20,20))
+plt.grid(which='major',linestyle='-',linewidth='0.5',color='green')
+plt.grid(which='minor',linestyle=':',linewidth='0.5',color='black')
+plt.show()
+plt.scatter(X_pr,Y_pr,color='blue')
+plt.plot(X_pr, Y_poly, color='red')
+plt.show()
+print('Mean Absolute Error :',metrics.mean_absolute_error(Y_pr,Y_poly))
+print('Mean Squared Error :',metrics.mean_squared_error(Y_pr,Y_poly))
+print('Root Mean Squared Error :',np.sqrt(metrics.mean_squared_error(Y_pr,Y_poly)))
+#Percentage Error = RMS/mean value = 964865/11623390 = 8.3%
+
+
+
+
+#Polynomial Regression with respect to Weather
+X_pr1 = df[["Weather",]].values
+Y_pr1 = df["Power Demand (kW)"].values
+pr1 = PolynomialFeatures(degree=4)  #since this degree gives the best fit and hence the least error
+X_poly1 = pr1.fit_transform(X_pr1)
+pr_reg1 = LinearRegression()
+pr_reg1.fit(X_poly1,Y_pr1)
+plt.scatter(X_pr1,Y_pr1,color='blue')
+Y_poly1 = pr_reg1.predict(pr1.fit_transform(X_pr1))
+plt.plot(X_pr1, Y_poly1, color='red')
+plt.show()
+pdv_pr1 = pd.DataFrame({"Actual":Y_pr1.flatten(),"Predicted":Y_poly1.flatten()})
+df_pr1 = pdv_pr1.head(108)
+df_pr1.plot(kind='bar',figsize=(20,20))
+plt.grid(which='major',linestyle='-',linewidth='0.5',color='green')
+plt.grid(which='minor',linestyle=':',linewidth='0.5',color='black')
+plt.show()
+print('Mean Absolute Error :',metrics.mean_absolute_error(Y_pr1,Y_poly1))
+print('Mean Squared Error :',metrics.mean_squared_error(Y_pr1,Y_poly1))
+print('Root Mean Squared Error :',np.sqrt(metrics.mean_squared_error(Y_pr1,Y_poly1)))
+#Percentage Error = RMS/mean value = 740924/11623390 = 6.37%
+
+
